@@ -3,6 +3,9 @@ from discord.ext import commands
 import asyncio
 import os
 import logging
+from dotenv import load_dotenv
+
+load_dotenv()
 from utils.db import init_db
 
 logging.basicConfig(
