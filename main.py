@@ -2,6 +2,7 @@ import discord
 from discord.ext import commands
 import asyncio
 import os
+import time
 import logging
 from dotenv import load_dotenv
 
@@ -30,6 +31,7 @@ COGS = [
     "cogs.leaderboard",
     "cogs.scheduler",
     "cogs.help",
+    "cogs.botinfo",
 ]
 
 intents = discord.Intents.default()
@@ -39,11 +41,30 @@ intents.members = True
 
 bot = commands.Bot(command_prefix="!", intents=intents, help_command=None)
 
+async def _update_presence():
+    guild_count = len(bot.guilds)
+    await bot.change_presence(
+        activity=discord.Activity(
+            type=discord.ActivityType.watching,
+            name=f"{guild_count} guilds judge each other",
+        )
+    )
+
 @bot.event
 async def on_ready():
+    bot.start_time = time.time()
     log.info(f"Logged in as {bot.user} ({bot.user.id})")
     await bot.tree.sync()
     log.info("Slash commands synced globally.")
+    await _update_presence()
+
+@bot.event
+async def on_guild_join(guild):
+    await _update_presence()
+
+@bot.event
+async def on_guild_remove(guild):
+    await _update_presence()
 
 async def main():
     await init_db()
