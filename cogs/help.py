@@ -40,12 +40,14 @@ class HelpCog(commands.Cog):
     @app_commands.command(name="help", description="List all bot commands.")
     async def help_cmd(self, interaction: discord.Interaction):
         await interaction.response.defer(ephemeral=False)
-        pages = await self._build_pages()
+        pages = await self._build_pages(interaction.guild)
         view = HelpView(pages)
         await interaction.followup.send(embed=pages[0], view=view)
 
-    async def _build_pages(self) -> list[discord.Embed]:
-        fetched = await self.bot.tree.fetch_commands()
+    async def _build_pages(self, guild: discord.Guild | None = None) -> list[discord.Embed]:
+        fetched = await self.bot.tree.fetch_commands(guild=guild)
+        if not fetched:
+            fetched = await self.bot.tree.fetch_commands()
         cmd_map = {c.name: c for c in fetched}
 
         def m(group: str, *subs: str) -> str:
