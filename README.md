@@ -1,4 +1,4 @@
-# Vera - Creative Judgement
+# <img src="/VJG-main.png" height="30" alt="icon"> Vera
 
 Vera is a public Discord bot built with **discord.py** that runs a perpetual suite of creative mini-games for your server. Games can be individually enabled/disabled per guild, with optional dedicated channels per game.
 
