@@ -5,9 +5,9 @@ from utils.db import fetchone, execute, fetchall
 from utils.games import ALL_GAMES, GAME_NAMES
 
 
-def is_admin():
+def has_manage_channel():
     async def predicate(interaction: discord.Interaction):
-        return interaction.user.guild_permissions.administrator
+        return interaction.user.guild_permissions.manage_channels
     return app_commands.check(predicate)
 
 
@@ -20,7 +20,7 @@ class AdminCog(commands.Cog):
     @admin_group.command(name="enable", description="Enable a game in this server.")
     @app_commands.describe(game="The game to enable")
     @app_commands.choices(game=[app_commands.Choice(name=GAME_NAMES[k], value=k) for k in ALL_GAMES])
-    @is_admin()
+    @has_manage_channel()
     async def enable_game(self, interaction: discord.Interaction, game: str):
         await execute(
             "INSERT INTO guild_settings (guild_id, game_key, enabled) VALUES (?,?,1) "
@@ -34,7 +34,7 @@ class AdminCog(commands.Cog):
     @admin_group.command(name="disable", description="Disable a game in this server.")
     @app_commands.describe(game="The game to disable")
     @app_commands.choices(game=[app_commands.Choice(name=GAME_NAMES[k], value=k) for k in ALL_GAMES])
-    @is_admin()
+    @has_manage_channel()
     async def disable_game(self, interaction: discord.Interaction, game: str):
         await execute(
             "INSERT INTO guild_settings (guild_id, game_key, enabled) VALUES (?,?,0) "
@@ -48,7 +48,7 @@ class AdminCog(commands.Cog):
     @admin_group.command(name="setchannel", description="Set a dedicated channel for a game.")
     @app_commands.describe(game="The game", channel="The channel to use")
     @app_commands.choices(game=[app_commands.Choice(name=GAME_NAMES[k], value=k) for k in ALL_GAMES])
-    @is_admin()
+    @has_manage_channel()
     async def set_channel(self, interaction: discord.Interaction, game: str, channel: discord.TextChannel):
         await execute(
             "INSERT INTO guild_settings (guild_id, game_key, enabled, channel_id) VALUES (?,?,1,?) "
@@ -62,7 +62,7 @@ class AdminCog(commands.Cog):
     @admin_group.command(name="clearchannel", description="Remove the dedicated channel for a game (uses current channel).")
     @app_commands.describe(game="The game")
     @app_commands.choices(game=[app_commands.Choice(name=GAME_NAMES[k], value=k) for k in ALL_GAMES])
-    @is_admin()
+    @has_manage_channel()
     async def clear_channel(self, interaction: discord.Interaction, game: str):
         await execute(
             "UPDATE guild_settings SET channel_id=NULL WHERE guild_id=? AND game_key=?",
@@ -73,7 +73,7 @@ class AdminCog(commands.Cog):
         )
 
     @admin_group.command(name="list", description="Show the status of all games in this server.")
-    @is_admin()
+    @has_manage_channel()
     async def list_games(self, interaction: discord.Interaction):
         rows = await fetchall(
             "SELECT game_key, enabled, channel_id FROM guild_settings WHERE guild_id=?",
@@ -101,7 +101,7 @@ class AdminCog(commands.Cog):
     async def cog_app_command_error(self, interaction: discord.Interaction, error):
         if isinstance(error, app_commands.CheckFailure):
             await interaction.response.send_message(
-                "❌ You need **Administrator** permission to use this command.", ephemeral=True
+                "❌ You need **Manage Channel** permission to use this command.", ephemeral=True
             )
         else:
             raise error
