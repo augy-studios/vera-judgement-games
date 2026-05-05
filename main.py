@@ -26,6 +26,7 @@ COGS = [
     "cogs.judging_games",
     "cogs.leaderboard",
     "cogs.scheduler",
+    "cogs.help",
 ]
 
 intents = discord.Intents.default()
