@@ -44,10 +44,7 @@ bot = commands.Bot(command_prefix="!", intents=intents, help_command=None)
 async def _update_presence():
     guild_count = len(bot.guilds)
     await bot.change_presence(
-        activity=discord.Activity(
-            type=discord.ActivityType.watching,
-            name=f"{guild_count} guilds judge each other",
-        )
+        activity=discord.CustomActivity(name=f"Judging {guild_count} guilds")
     )
 
 @bot.event
